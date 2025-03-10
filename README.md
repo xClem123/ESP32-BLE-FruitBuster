@@ -28,21 +28,21 @@ Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appare
   - Bibliothèque NimBLE-Arduino (via le gestionnaire de bibliothèques).
     
 3. Téléverser le code sur l’ESP32.
-4. 
-🎮 Utilisation
+ 
+## 🎮 Utilisation
 - Mode 0 : Désactivé (LED éteinte).
 - Mode 1 : Simulation Apple (LED fixe).
 - Mode 2 : Attaque Sour Apple (LED clignote).
 - Changer de mode : Appuyer sur BOOT (GPIO 0).
   
-⚠️ Changelog
+## ⚠️ Changelog
 - **2025-03-10**
 - Correction Bug Compilation : Résolution des conflits entre BLEDevice.h et NimBLEDevice.h. Passage exclusif à NimBLEDevice.h pour les deux modes (Simulation Apple et Sour Apple). Correction des appels à addData et suppression des méthodes incompatibles - (setAdvertisementType, setDeviceAddress).
 
 
-📜 Crédits
+## 📜 Crédits
 - [RapierXbox](https://github.com/RapierXbox/ESP32-Sour-Apple) : Pour le code Sour Apple.
 - [ckcr4lyf](https://github.com/ckcr4lyf/EvilAppleJuice-ESP32) : Base de code pour le BLE spam.
   
-📜 Licence
+## 📜 Licence
 Ce projet est sous licence GNU GPL v3.0. Voir le fichier LICENSE pour plus de détails.
