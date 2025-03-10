@@ -29,9 +29,11 @@ Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appare
 - Mode 1 : Simulation Apple (LED fixe).
 - Mode 2 : Attaque Sour Apple (LED clignote).
 - Changer de mode : Appuyer sur BOOT (GPIO 0).
+  
 📜 Crédits
-[RapierXbox](https://github.com/RapierXbox/ESP32-Sour-Apple) : Pour le code Sour Apple.
-[ckcr4lyf](https://github.com/ckcr4lyf/EvilAppleJuice-ESP32) : Base de code pour le BLE spam.
+- [RapierXbox](https://github.com/RapierXbox/ESP32-Sour-Apple) : Pour le code Sour Apple.
+- [ckcr4lyf](https://github.com/ckcr4lyf/EvilAppleJuice-ESP32) : Base de code pour le BLE spam.
+  
 📜 Licence
 Ce projet est sous licence GNU GPL v3.0. Voir le fichier LICENSE pour plus de détails.
 ```
