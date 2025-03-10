@@ -7,7 +7,7 @@
 
 ![ESP32 BLE](https://img.shields.io/badge/ESP32-BLE-blue.svg) ![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-green.svg)
 
-Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appareils Apple ! Il permet de simuler des AirPods, une Apple TV, ou d’envoyer des paquets "Sour Apple" pour perturber les iOS voisins. **À utiliser avec responsabilité !**
+Un projet fun et éducatif pour ESP32 exploitant le BLE pour envoyer des notification de connexion d'appareils sur les appareils Apple ! Il permet de simuler des AirPods, une Apple TV ect... ou d’envoyer des paquets Apple pour faire planter les iOS 17. **À utiliser avec responsabilité !**
 
 ## 🚀 Fonctionnalités
 - **🔹 Mode Simulation** : Se fait passer pour un appareil Apple (AirPods, Apple TV, etc.).
