@@ -15,7 +15,7 @@ Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appare
 ## 🛠️ Installation
 1. **Cloner le dépôt** :
    ```bash
-   git clone https://github.com/TonPseudo/ESP32-BLE-FruitBuster.git
+   git clone https://github.com/xClem123/ESP32-BLE-FruitBuster.git
    ```
 2. Ouvrir dans l'IDE Arduino.
   - Installer les dépendances :
