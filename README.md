@@ -1,5 +1,10 @@
 # ESP32-BLE-FruitBuster
 
+> ### 🚫 Warning
+> Only use this on devices you own or when you have permisson to use it.\
+> This project is made for educational purposes ONLY and is NOT made to break laws and/or\
+> for personal gain. Everythin is provided as-is and has no warranty so if your break any of your devices.
+
 ![ESP32 BLE](https://img.shields.io/badge/ESP32-BLE-blue.svg) ![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-green.svg)
 
 Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appareils Apple ! Il permet de simuler des AirPods, une Apple TV, ou d’envoyer des paquets "Sour Apple" pour perturber les iOS voisins. **À utiliser avec responsabilité !**
@@ -41,6 +46,3 @@ Un projet fun et éducatif pour ESP32 exploitant le BLE pour taquiner les appare
   
 📜 Licence
 Ce projet est sous licence GNU GPL v3.0. Voir le fichier LICENSE pour plus de détails.
-```
-⚠️ Avertissement : Ce projet est destiné à l'éducation et aux tests dans un environnement contrôlé. Ne pas abuser sur des appareils non consentants !
-```
